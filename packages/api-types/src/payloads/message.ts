@@ -19,12 +19,22 @@ export interface APIMessage {
   /**
    * The author of the message.
    */
-  author: APIMember
+  author: APIMember | null
+
+  /**
+   * The id of the author of the message.
+   */
+  author_id: Id
 
   /**
    * The channel the message was sent in.
    */
   channel: APIChannel | null
+
+  /**
+   * The id of the channel the message was sent in.
+   */
+  channel_id: Id
 
   /**
    * The files attached to the message.

@@ -40,7 +40,6 @@ export default class MessageManager extends CachedManager<Id, APIMessage, Messag
     }
 
     const data = await this.client.api.message.get(this.channel.id, options.id, {
-      withUser: options.withUser,
       withAuthor: options.withAuthor,
       withChannel: options.withChannel,
       withAttachments: options.withAttachments,
@@ -62,9 +61,5 @@ export default class MessageManager extends CachedManager<Id, APIMessage, Messag
       (collection, message) => collection.set(message.id, this._add(message.id, message)),
       new Map<number, Message>(),
     )
-  }
-
-  protected override createHeld(data: APIMessage): Message {
-    return new Message(this.client, data, this.channel)
   }
 }

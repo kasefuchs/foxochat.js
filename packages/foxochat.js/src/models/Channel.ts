@@ -1,11 +1,11 @@
-import type { APIChannel, ChannelFlags, ChannelType } from '@foxochatjs/api-types'
+import type { Id, APIChannel, ChannelFlags, ChannelType } from '@foxochatjs/api-types'
 import type Client from '@/Client'
-import User from '@/models/User'
 import Message from '@/models/Message'
 import MemberManager from '@/managers/MemberManager'
 import MessageManager from '@/managers/MessageManager'
 import Data from '@/models/Data'
 import Avatar from '@/models/Avatar'
+import Member from "@/models/Member";
 
 /**
  * API Channel model.
@@ -47,9 +47,9 @@ export default class Channel extends Data<APIChannel> {
   public memberCount!: number
 
   /**
-   * The owner of the channel.
+   * The id of the owner of the channel.
    */
-  public owner!: User
+  public ownerId!: Id
 
   /**
    * The time when channel created at.
@@ -77,6 +77,13 @@ export default class Channel extends Data<APIChannel> {
     this._patch(data)
   }
 
+  /**
+   * The owner of the channel.
+   */
+  public get owner(): Member | undefined {
+    return this.members.cache.get(this.ownerId)
+  }
+
   public override _patch(data: Partial<APIChannel>): void {
     if ('name' in data) this.name = data.name!
     if ('display_name' in data) this.displayName = data.display_name!
@@ -84,12 +91,14 @@ export default class Channel extends Data<APIChannel> {
     if ('flags' in data) this.flags = data.flags!
     if ('member_count' in data) this.memberCount = data.member_count!
     if ('created_at' in data) this.createdAt = new Date(data.created_at!)
+    if ('owner_id' in data) this.ownerId = data.owner_id!
 
     if ('avatar' in data) this.avatar = data.avatar ? new Avatar(this.client, data.avatar) : null
     if ('banner' in data) this.banner = data.banner ? new Avatar(this.client, data.banner) : null
-    if ('owner' in data) this.owner = this.client.users._add(data.owner!.id, data.owner!)
     if ('last_message' in data)
       this.lastMessage = data.last_message ? this.messages._add(data.last_message.id, data.last_message) : null
+
+    if (data.owner) this.members._add(data.owner.id, data.owner)
   }
 
   public override toJson(): APIChannel {
@@ -102,7 +111,8 @@ export default class Channel extends Data<APIChannel> {
       type: this.type,
       flags: this.flags,
       member_count: this.memberCount,
-      owner: this.owner.toJson(),
+      owner_id: this.ownerId,
+      owner: this.owner?.toJson() ?? null,
       created_at: this.createdAt.getTime(),
       last_message: this.lastMessage?.toJson() ?? null,
     }

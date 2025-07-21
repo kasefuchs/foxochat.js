@@ -1,4 +1,4 @@
-import type { APIMember, MemberPermissions } from '@foxochatjs/api-types'
+import type { Id, APIMember, MemberPermissions } from '@foxochatjs/api-types'
 import type Client from '@/Client'
 import User from '@/models/User'
 import Channel from '@/models/Channel'
@@ -9,14 +9,14 @@ import Data from '@/models/Data'
  */
 export default class Member extends Data<APIMember> {
   /**
-   * The user of the member.
+   * The id of the user of the member.
    */
-  public user!: User
+  public userId!: Id
 
   /**
-   * The channel of the member.
+   * The id of the channel of the member.
    */
-  public channel!: Channel
+  public channelId!: Id
 
   /**
    * The permissions of the member.
@@ -34,26 +34,44 @@ export default class Member extends Data<APIMember> {
     this._patch(data)
   }
 
+  /**
+   * The user of the member.
+   */
+  public get user(): User | undefined {
+    return this.client.users.cache.get(this.userId)
+  }
+
+  /**
+   * The channel of the member.
+   */
+  public get channel(): Channel | undefined {
+    return this.client.channels.cache.get(this.channelId)
+  }
+
   public override _patch(data: Partial<APIMember>): void {
     if ('permissions' in data) this.permissions = data.permissions!
     if ('joined_at' in data) this.joinedAt = new Date(data.joined_at!)
+    if ('user_id' in data) this.userId = data.user_id!
+    if ('channel_id' in data) this.channelId = data.channel_id!
 
-    if ('user' in data) this.user = this.client.users._add(data.user!.id, data.user!)
-    if ('channel' in data) this.channel = this.client.channels._add(data.channel!.id, data.channel!)
+    if (data.user) this.client.users._add(data.user!.id, data.user!)
+    if (data.channel) this.client.channels._add(data.channel!.id, data.channel!)
   }
 
   /**
    * Fetch this member.
    */
-  public async fetch(force: boolean = true): Promise<Member> {
-    return await this.channel.members.fetch({ id: this.id, force })
+  public async fetch(force: boolean = true): Promise<Member | undefined> {
+    return await this.channel?.members.fetch({ id: this.id, force })
   }
 
   public override toJson(): APIMember {
     return {
       id: this.id,
-      user: this.user.toJson(),
-      channel: this.channel.toJson(),
+      user: this.user?.toJson() ?? null,
+      user_id: this.userId,
+      channel: this.channel?.toJson() ?? null,
+      channel_id: this.channelId,
       permissions: this.permissions,
       joined_at: this.joinedAt.getTime(),
     }

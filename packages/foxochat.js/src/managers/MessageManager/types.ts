@@ -25,6 +25,5 @@ export interface FetchMessageOptions extends FetchOptions {
 
   withChannel?: boolean
   withAttachments?: boolean
-  withUser?: boolean
   withAuthor?: boolean
 }

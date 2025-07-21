@@ -50,7 +50,12 @@ export interface APIChannel {
   /**
    * The owner of the channel.
    */
-  owner: APIUser
+  owner: APIMember | null
+
+  /**
+   * The id of the owner of the channel.
+   */
+  owner_id: Id
 
   /**
    * The time when channel created at.
@@ -110,12 +115,22 @@ export interface APIMember {
   /**
    * The user of the member.
    */
-  user: APIUser
+  user: APIUser | null
+
+  /**
+   * The id of the user of the member.
+   */
+  user_id: Id
 
   /**
    * The channel of the member.
    */
-  channel: APIChannel
+  channel: APIChannel | null
+
+  /**
+   * The id of the channel of the member.
+   */
+  channel_id: Id
 
   /**
    * The permissions of the member.

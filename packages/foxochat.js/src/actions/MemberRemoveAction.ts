@@ -9,7 +9,7 @@ export default class MemberRemoveAction extends BaseAction<GatewayDispatchEvents
   }
 
   public override handle(data: GatewayDispatchMemberRemovePayload): void {
-    const channel = this.client.channels._add(data.channel.id, data.channel)
+    const channel = this.client.channels._add(data.channel!.id, data.channel!)
     const member = channel.members.cache.get(data.id)
 
     if (member) {

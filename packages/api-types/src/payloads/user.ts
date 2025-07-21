@@ -73,7 +73,7 @@ export interface APIUser<Short extends boolean = false> {
   /**
    * The time when user created at.
    */
-  created_at: Short extends false ? Timestamp : never
+  created_at: Timestamp
 }
 
 /**

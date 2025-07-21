@@ -11,7 +11,7 @@ export default class MemberAddAction extends BaseAction<GatewayDispatchEvents.Me
   public override handle(data: GatewayDispatchMemberAddPayload): void {
     this.client.emit(
       ClientEvents.MemberAdd,
-      this.client.channels._add(data.channel.id, data.channel).members._add(data.id, data),
+      this.client.channels._add(data.channel!.id, data.channel!).members._add(data.id, data),
     )
   }
 }
